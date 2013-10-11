@@ -40,15 +40,11 @@ class JenkinsBase(object):
         """
         if not isinstance(other, self.__class__):
             return False
-        if not other.baseurl == self.baseurl:
-            return False
-        return True
+        return other.baseurl == self.baseurl
 
     @classmethod
     def strip_trailing_slash(cls, url):
-        while url.endswith('/'):
-            url = url[:-1]
-        return url
+        return url.rstrip('/')
 
     def poll(self):
         self._data = self._poll()
@@ -71,8 +67,4 @@ class JenkinsBase(object):
         if url.endswith(config.JENKINS_API):
             return url
         else:
-            if url.endswith(r"/"):
-                fmt = "%s%s"
-            else:
-                fmt = "%s/%s"
-            return fmt % (url, config.JENKINS_API)
+            return "%s/%s" % (url.rstrip("/"), config.JENKINS_API)
