@@ -56,10 +56,8 @@ class Build(JenkinsBase):
         return getattr(self, '_get_%s_rev' % vcs, lambda: None)()
 
     def _get_svn_rev(self):
-        maxRevision = 0
-        for repoPathSet in self._data["changeSet"]["revisions"]:
-            maxRevision = max(repoPathSet["revision"], maxRevision)
-        return maxRevision
+        src = self._data["changeSet"]["revisions"]
+        return max(repoPathSet["revision"] for repoPathSet in src) if src else 0
 
     def _get_git_rev(self):
         # Sometimes we have None as part of actions. Filter those actions
@@ -74,7 +72,8 @@ class Build(JenkinsBase):
             return revision
 
     def _get_hg_rev(self):
-        return [x['mercurialNodeName'] for x in self._data['actions'] if 'mercurialNodeName' in x][0]
+        src = self._data['actions']
+        return src['mercurialNodeName']
 
     def get_duration(self):
         return datetime.timedelta(milliseconds=self._data["duration"])
@@ -82,8 +81,7 @@ class Build(JenkinsBase):
     def get_artifacts(self):
         for afinfo in self._data["artifacts"]:
             url = "%s/artifact/%s" % (self.baseurl, afinfo["relativePath"])
-            af = Artifact(afinfo["fileName"], url, self)
-            yield af
+            yield Artifact(afinfo["fileName"], url, self)
 
     def get_artifact_dict(self):
         return dict(
@@ -105,10 +103,8 @@ class Build(JenkinsBase):
         Get the upstream job object if it exist, None otherwise
         :return: Job or None
         """
-        if self.get_upstream_job_name():
-            return self.get_jenkins_obj().get_job(self.get_upstream_job_name())
-        else:
-            return None
+        upstream = self.get_upstream_job_name()
+        return self.get_jenkins_obj().get_job(upstream) if upstream else None
 
     def get_upstream_build_number(self):
         """
@@ -126,10 +122,7 @@ class Build(JenkinsBase):
         :return Build or None
         """
         upstream_job = self.get_upstream_job()
-        if upstream_job:
-            return upstream_job.get_build(self.get_upstream_build_number())
-        else:
-            return None
+        return upstream_job.get_build(self.get_upstream_build_number()) if upstream_job else None
 
     def get_master_job_name(self):
         """
@@ -146,10 +139,8 @@ class Build(JenkinsBase):
         Get the master job object if it exist, None otherwise
         :return: Job or None
         """
-        if self.get_master_job_name():
-            return self.get_jenkins_obj().get_job(self.get_master_job_name())
-        else:
-            return None
+        master_job = self.get_master_job_name()
+        return self.get_jenkins_obj().get_job(master_job) if master_job else None
 
     def get_master_build_number(self):
         """
@@ -167,21 +158,16 @@ class Build(JenkinsBase):
         :return Build or None
         """
         master_job = self.get_master_job()
-        if master_job:
-            return master_job.get_build(self.get_master_build_number())
-        else:
-            return None
+        return master_job.get_build(self.get_master_build_number()) if master_job else None
 
     def get_downstream_jobs(self):
         """
         Get the downstream jobs for this build
         :return List of jobs or None
         """
-        downstream_jobs = []
         try:
-            for job_name in self.get_downstream_job_names():
-                downstream_jobs.append(self.get_jenkins_obj().get_job(job_name))
-            return downstream_jobs
+            names = self.get_downstream_job_names()
+            return [self.get_jenkins_obj().get_job(name) for name in (names or [])]
         except (IndexError, KeyError):
             return []
 
@@ -190,28 +176,16 @@ class Build(JenkinsBase):
         Get the downstream job names for this build
         :return List of string or None
         """
-# <<<<<<< HEAD
-#         downstream_jobs_names = self.job.get_downstream_job_names()
-#         fingerprint_data = self.get_data("%s?depth=2&tree=fingerprint[usage[name]]" \
-#                                            % self.python_api_url(self.baseurl))
-#         try:
-#             fingerprints = fingerprint_data['fingerprint'][0]
-#             return [
-#                 f['name']
-#                 for f in fingerprints['usage']
-#                 if f['name'] in downstream_jobs_names
-#             ]
-# =======
-        downstream_job_names = self.job.get_downstream_job_names()
-        downstream_names = []
-        try:
-            fingerprints = self._data["fingerprint"]
-            for fingerprint in fingerprints:
-                for job_usage in fingerprint['usage']:
-                    if job_usage['name'] in downstream_job_names:
-                        downstream_names.append(job_usage['name'])
-            return downstream_names
-# >>>>>>> unstable
+         downstream_jobs_names = self.job.get_downstream_job_names()
+         fingerprint_data = self.get_data("%s?depth=2&tree=fingerprint[usage[name]]" \
+                                            % self.python_api_url(self.baseurl))
+         try:
+            fingerprints = fingerprint_data['fingerprint'][0]
+            return [
+                f['name']
+                for f in fingerprints['usage']
+                if f['name'] in downstream_jobs_names
+            ]
         except (IndexError, KeyError):
             return []
 
@@ -220,32 +194,16 @@ class Build(JenkinsBase):
         Get the downstream builds for this build
         :return List of Build or None
         """
-# <<<<<<< HEAD
-#         downstream_jobs_names = set(self.job.get_downstream_job_names())
-#         msg = "%s?depth=2&tree=fingerprint[usage[name,ranges[ranges[end,start]]]]"
-#         fingerprint_data = self.get_data(msg % self.python_api_url(self.baseurl))
-#         try:
-#             fingerprints = fingerprint_data['fingerprint'][0]
-#             return [
-#                 self.get_jenkins_obj().get_job(f['name']).get_build(f['ranges']['ranges'][0]['start'])
-#                 for f in fingerprints['usage']
-#                 if f['name'] in downstream_jobs_names
-#             ]
-# =======
-        downstream_job_names = self.get_downstream_job_names()
-        downstream_builds = []
-        try:
-            fingerprints = self._data["fingerprint"]
-            for fingerprint in fingerprints:
-                for job_usage in fingerprint['usage']:
-                    if job_usage['name'] in downstream_job_names:
-                        job = self.get_jenkins_obj().get_job(job_usage['name'])
-                        for job_range in job_usage['ranges']['ranges']:
-                            for build_id in range(job_range['start'],
-                                                  job_range['end']):
-                                downstream_builds.append(job.get_build(build_id))
-            return downstream_builds
-# >>>>>>> unstable
+         downstream_jobs_names = set(self.job.get_downstream_job_names())
+         msg = "%s?depth=2&tree=fingerprint[usage[name,ranges[ranges[end,start]]]]"
+         fingerprint_data = self.get_data(msg % self.python_api_url(self.baseurl))
+         try:
+            fingerprints = fingerprint_data['fingerprint'][0]
+            return [
+                self.get_jenkins_obj().get_job(f['name']).get_build(f['ranges']['ranges'][0]['start'])
+                for f in fingerprints['usage']
+                if f['name'] in downstream_jobs_names
+            ]
         except (IndexError, KeyError):
             return []
 
@@ -255,9 +213,8 @@ class Build(JenkinsBase):
         matrix configuration
         :return: Generator of Build
         """
-        if "runs" in self._data:
-            for rinfo in self._data["runs"]:
-                yield Build(rinfo["url"], rinfo["number"], self.job)
+        for rinfo in self._data.get("runs", []):
+            yield Build(rinfo["url"], rinfo["number"], self.job)
 
     def is_running(self):
         """
@@ -300,14 +257,13 @@ class Build(JenkinsBase):
         """
         Obtain detailed results for this build.
         """
-        result_url = self.get_result_url()
-        if self.STR_TOTALCOUNT not in self.get_actions():
+        if self.has_resultset():
             raise NoResults("%s does not have any published results" % str(self))
         buildstatus = self.get_status()
         if not self.get_actions()[self.STR_TOTALCOUNT]:
             raise NoResults(self.STR_TPL_NOTESTS_ERR % (str(self), buildstatus))
-        obj_results = ResultSet(result_url, build=self)
-        return obj_results
+        result_url = self.get_result_url()
+        return ResultSet(result_url, build=self)
 
     def has_resultset(self):
         """
