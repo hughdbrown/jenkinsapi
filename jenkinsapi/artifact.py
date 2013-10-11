@@ -70,7 +70,7 @@ class Artifact(object):
 
     def _do_download(self, fspath):
         """
-        Download the the artifact to a path.
+        Download the artifact to a path.
         """
         with open(fspath, "wb") as out:
             out.write(self.get_data())
@@ -95,6 +95,7 @@ class Artifact(object):
                 for chunk in iter(lambda: f.read(chunksize), ''):
                     md5.update(chunk)
         except:
+            # FIXME If you are just going to raise the exception, why catch it at all?
             raise
         return md5.hexdigest()
 
