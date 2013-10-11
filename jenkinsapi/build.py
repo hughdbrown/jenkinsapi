@@ -176,10 +176,11 @@ class Build(JenkinsBase):
         Get the downstream job names for this build
         :return List of string or None
         """
-         downstream_jobs_names = self.job.get_downstream_job_names()
-         fingerprint_data = self.get_data("%s?depth=2&tree=fingerprint[usage[name]]" \
-                                            % self.python_api_url(self.baseurl))
-         try:
+        downstream_jobs_names = self.job.get_downstream_job_names()
+        base = self.python_api_url(self.baseurl)
+        url = "%s?depth=2&tree=fingerprint[usage[name]]" % base
+        fingerprint_data = self.get_data(url)
+        try:
             fingerprints = fingerprint_data['fingerprint'][0]
             return [
                 f['name']
@@ -194,10 +195,11 @@ class Build(JenkinsBase):
         Get the downstream builds for this build
         :return List of Build or None
         """
-         downstream_jobs_names = set(self.job.get_downstream_job_names())
-         msg = "%s?depth=2&tree=fingerprint[usage[name,ranges[ranges[end,start]]]]"
-         fingerprint_data = self.get_data(msg % self.python_api_url(self.baseurl))
-         try:
+        downstream_jobs_names = set(self.job.get_downstream_job_names())
+        base = self.python_api_url(self.baseurl)
+        url = "%s?depth=2&tree=fingerprint[usage[name,ranges[ranges[end,start]]]]" % base
+        fingerprint_data = self.get_data(url)
+        try:
             fingerprints = fingerprint_data['fingerprint'][0]
             return [
                 self.get_jenkins_obj().get_job(f['name']).get_build(f['ranges']['ranges'][0]['start'])

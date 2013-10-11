@@ -1,14 +1,7 @@
 from jenkinsapi.view import View
 from jenkinsapi.jenkins import Jenkins
-J = Jenkins('http://localhost:8080')
-print J.items()
-j = J['foo']
-j = J.get_job("foo")
-b = j.get_last_build()
-print b
-mjn = b.get_master_job_name()
-print(mjn)
 
+JENKINS = 'http://localhost:8080'
 EMPTY_JOB_CONFIG = '''\
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
@@ -29,4 +22,19 @@ EMPTY_JOB_CONFIG = '''\
 </project>
 '''
 
-new_job = J.create_job(name='foo_job', config=EMPTY_JOB_CONFIG)
+
+def main():
+    J = Jenkins(JENKINS)
+    print J.items()
+    j = J['foo']
+    j = J.get_job("foo")
+    b = j.get_last_build()
+    print b
+    mjn = b.get_master_job_name()
+    print(mjn)
+
+    new_job = J.create_job(name='foo_job', config=EMPTY_JOB_CONFIG)
+
+if __name__ == '__main__':
+    main()
+

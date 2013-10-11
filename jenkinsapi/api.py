@@ -64,6 +64,7 @@ def get_artifacts(jenkinsurl, jobid=None, build_no=None, proxyhost=None,
     Find all the artifacts for the latest build of a job.
     """
     jenkinsci = Jenkins(jenkinsurl, proxyhost, proxyport, proxyuser, proxypass)
+    # FIXME How can jobid be an optional parameter? Is None a valid or special index?
     job = jenkinsci[jobid]
     if build_no:
         build = job.get_build(build_no)
