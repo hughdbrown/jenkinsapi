@@ -45,6 +45,7 @@ class Fingerprint(JenkinsBase):
         try:
             self.poll()
             self.unknown = False
+            return True
         except urllib2.HTTPError as err:
             # We can't really say anything about the validity of
             # fingerprints not found -- but the artifact can still
@@ -52,10 +53,7 @@ class Fingerprint(JenkinsBase):
             # valid or not.
             if err.code == 404:
                 self.unknown = True
-                return True
-
-            return False
-        return True
+            return err.code == 404
 
     def validate_for_build(self, filename, job, build):
         if not self.valid():
@@ -64,10 +62,9 @@ class Fingerprint(JenkinsBase):
         if self.unknown:
             # not request error, but unknown to jenkins
             return True
-        if not self._data["original"] is None:
-            if self._data["original"]["name"] == job:
-                if self._data["original"]["number"] == build:
-                    return True
+        original = self._data.get("original", {})
+        if (original.get("name"), original.get("build")) == (job, build):
+            return True
         if self._data["fileName"] != filename:
             log.info(msg="Filename from jenkins (%s) did not match provided (%s)" % (self._data["fileName"], filename))
             return False
@@ -95,4 +92,5 @@ class Fingerprint(JenkinsBase):
         Returns a tuple of build-name, build# and artifiact filename for a good build.
         """
         self.poll()
-        return self._data["original"]["name"], self._data["original"]["number"], self._data["fileName"]
+        original = self._data["original"]
+        return original["name"], original["number"], self._data["fileName"]
