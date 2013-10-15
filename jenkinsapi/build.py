@@ -168,7 +168,8 @@ class Build(JenkinsBase):
         """
         try:
             names = self.get_downstream_job_names()
-            return [self.get_jenkins_obj().get_job(name) for name in (names or [])]
+            obj = self.get_jenkins_obj()
+            return [obj.get_job(name) for name in names]
         except (IndexError, KeyError):
             return []
 
@@ -200,8 +201,9 @@ class Build(JenkinsBase):
         try:
             fingerprints = fingerprint_data['fingerprint'][0]
             name_range_iter = ((f['name'], f['ranges']) for f in fingerprints['usage'])
+            obj = self.get_jenkins_obj()
             return [
-                self.get_jenkins_obj().get_job(name).get_build(ranges['ranges'][0]['start'])
+                obj.get_job(name).get_build(ranges['ranges'][0]['start'])
                 for name, ranges in name_range_iter
                 if name in downstream_jobs_names
             ]
