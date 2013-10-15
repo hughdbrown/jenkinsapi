@@ -164,7 +164,7 @@ class Build(JenkinsBase):
     def get_downstream_jobs(self):
         """
         Get the downstream jobs for this build
-        :return List of jobs or None
+        :return List of jobs
         """
         try:
             names = self.get_downstream_job_names()
@@ -175,7 +175,7 @@ class Build(JenkinsBase):
     def get_downstream_job_names(self):
         """
         Get the downstream job names for this build
-        :return List of string or None
+        :return List of string
         """
         downstream_jobs_names = self.job.get_downstream_job_names()
         base = self.python_api_url(self.baseurl)
@@ -191,7 +191,7 @@ class Build(JenkinsBase):
     def get_downstream_builds(self):
         """
         Get the downstream builds for this build
-        :return List of Build or None
+        :return List of Build
         """
         downstream_jobs_names = set(self.job.get_downstream_job_names())
         base = self.python_api_url(self.baseurl)
