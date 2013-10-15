@@ -472,53 +472,42 @@ class Job(JenkinsBase, MutableJenkinsThing):
         Get all the possible downstream jobs
         :return List of Job
         """
-        downstream_jobs = []
         try:
-            for j in self._data['downstreamProjects']:
-                downstream_jobs.append(
-                    self.get_jenkins_obj().get_job(j['name']))
+            obj = self.get_jenkins_obj()
+            return [obj.get_job(name) for name in self.get_downstream_job_names()]
         except KeyError:
             return []
-        return downstream_jobs
 
     def get_downstream_job_names(self):
         """
         Get all the possible downstream job names
         :return List of String
         """
-        downstream_jobs = []
         try:
-            for j in self._data['downstreamProjects']:
-                downstream_jobs.append(j['name'])
+            return [j['name'] for j in self._data['downstreamProjects']]
         except KeyError:
             return []
-        return downstream_jobs
 
     def get_upstream_job_names(self):
         """
         Get all the possible upstream job names
         :return List of String
         """
-        upstream_jobs = []
         try:
-            for j in self._data['upstreamProjects']:
-                upstream_jobs.append(j['name'])
+            return [j['name'] for j in self._data['upstreamProjects']]
         except KeyError:
             return []
-        return upstream_jobs
 
     def get_upstream_jobs(self):
         """
         Get all the possible upstream jobs
         :return List of Job
         """
-        upstream_jobs = []
         try:
-            for j in self._data['upstreamProjects']:
-                upstream_jobs.append(self.get_jenkins_obj().get_job(j['name']))
+            obj = self.get_jenkins_obj()
+            return [obj.get_job(name) for name in self.get_upstream_job_names()]
         except KeyError:
             return []
-        return upstream_jobs
 
     def is_enabled(self):
         self.poll()
