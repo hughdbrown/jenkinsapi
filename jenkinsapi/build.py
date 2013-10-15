@@ -182,11 +182,8 @@ class Build(JenkinsBase):
         fingerprint_data = self.get_data(url)
         try:
             fingerprints = fingerprint_data['fingerprint'][0]
-            return [
-                f['name']
-                for f in fingerprints['usage']
-                if f['name'] in downstream_jobs_names
-            ]
+            name_iter = (f['name'] for f in fingerprints['usage'])
+            return [name for name in name_iter if name in downstream_jobs_names]
         except (IndexError, KeyError):
             return []
 
@@ -201,10 +198,11 @@ class Build(JenkinsBase):
         fingerprint_data = self.get_data(url)
         try:
             fingerprints = fingerprint_data['fingerprint'][0]
+            name_range_iter = ((f['name'], f['ranges']) for f in fingerprints['usage'])
             return [
-                self.get_jenkins_obj().get_job(f['name']).get_build(f['ranges']['ranges'][0]['start'])
-                for f in fingerprints['usage']
-                if f['name'] in downstream_jobs_names
+                self.get_jenkins_obj().get_job(name).get_build(ranges['ranges'][0]['start'])
+                for name, ranges in name_range_iter
+                if name in downstream_jobs_names
             ]
         except (IndexError, KeyError):
             return []
