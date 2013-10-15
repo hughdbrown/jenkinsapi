@@ -558,10 +558,7 @@ class Job(JenkinsBase, MutableJenkinsThing):
         """
         Gets the list of parameter names for this job.
         """
-        params = []
-        for param in self.get_params():
-            params.append(param['name'])
-        return params
+        return [param['name'] for param in self.get_params()]
 
     def build_iter(self):
         for build_id in self.get_build_ids():
