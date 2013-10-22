@@ -87,6 +87,7 @@ class test_build(unittest.TestCase):
     }
 
     @mock.patch.object(Build, '_poll')
+    # pylint: disable=W0221
     def setUp(self, _poll):
         _poll.return_value = self.DATA
         self.j = mock.MagicMock()  # Job

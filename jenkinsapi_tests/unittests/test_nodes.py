@@ -193,6 +193,7 @@ class TestNode(unittest.TestCase):
 
     @mock.patch.object(Jenkins, '_poll')
     @mock.patch.object(Nodes, '_poll')
+    # pylint: disable=W0221
     def setUp(self, _poll_nodes, _poll_jenkins):
         _poll_jenkins.return_value = self.DATA0
         _poll_nodes.return_value = self.DATA1

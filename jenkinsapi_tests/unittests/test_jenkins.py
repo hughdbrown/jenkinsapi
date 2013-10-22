@@ -7,11 +7,17 @@ from jenkinsapi.jenkins import Jenkins, JenkinsBase, Job
 from jenkinsapi.custom_exceptions import JenkinsAPIException, UnknownJob
 
 
+# Mock function
+def second_call_poll():
+    return TestJenkins.create_job_returns.pop(0)
+
+
 class TestJenkins(unittest.TestCase):
 
     DATA = {}
 
     @mock.patch.object(Jenkins, '_poll')
+    # pylint: disable=W0221
     def setUp(self, _poll):
         _poll.return_value = self.DATA
         self.J = Jenkins('http://localhost:8080',
@@ -127,7 +133,7 @@ class TestJenkins(unittest.TestCase):
                     username='foouser', password='foopassword')
 
         with self.assertRaises(UnknownJob):
-            job = J.get_job('job_three')
+            _ = J.get_job('job_three')
 
     @mock.patch.object(JenkinsBase, '_poll')
     @mock.patch.object(Jenkins, '_poll')
@@ -206,10 +212,6 @@ class TestJenkins(unittest.TestCase):
             ]
         }
     ]
-
-    # Mock function
-    def second_call_poll():
-        return TestJenkins.create_job_returns.pop(0)
 
     # Patch Jenkins with mock function
     @mock.patch.object(Jenkins, '_poll', side_effect=second_call_poll)

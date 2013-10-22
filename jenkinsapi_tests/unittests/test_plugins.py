@@ -45,6 +45,7 @@ class TestPlugins(unittest.TestCase):
     }
 
     @mock.patch.object(Jenkins, '_poll')
+    # pylint: disable=W0221
     def setUp(self, _poll_jenkins):
         _poll_jenkins.return_value = {}
 

@@ -2,7 +2,6 @@ import mock
 import unittest
 
 from jenkinsapi.jenkinsbase import JenkinsBase
-from jenkinsapi.jenkins import Jenkins
 from jenkinsapi.view import View
 from jenkinsapi.job import Job
 
@@ -61,6 +60,7 @@ class TestView(unittest.TestCase):
 
     @mock.patch.object(Job, '_poll')
     @mock.patch.object(View, '_poll')
+    # pylint: disable=W0221
     def setUp(self, _view_poll, _job_poll):
         _view_poll.return_value = self.DATA
         _job_poll.return_value = self.JOB_DATA
@@ -82,7 +82,7 @@ class TestView(unittest.TestCase):
     @mock.patch.object(JenkinsBase, '_poll')
     def test_iteritems(self, _poll):
         _poll.return_value = self.JOB_DATA
-        for job_name, job_obj in self.v.iteritems():
+        for _, job_obj in self.v.iteritems():
             self.assertTrue(isinstance(job_obj, Job))
 
     def test_get_job_dict(self):
@@ -127,10 +127,10 @@ class TestView(unittest.TestCase):
         self.assertTrue(result)
 
     class SelfPatchJenkins(object):
-        def has_job(self, job_name):
+        def has_job(self, _):
             return False
 
-        def get_jenkins_obj_from_url(self, url):
+        def get_jenkins_obj_from_url(self, _):
             return self
 
     # We have to re-patch JenkinsBase here because by the time

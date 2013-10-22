@@ -42,6 +42,7 @@ class test_build(unittest.TestCase):
         'url': 'http://localhost:8080/job/foo/1/'}
 
     @mock.patch.object(Build, '_poll')
+    # pylint: disable=W0221
     def setUp(self, _poll):
         _poll.return_value = self.DATA
         self.j = mock.MagicMock()  # Job

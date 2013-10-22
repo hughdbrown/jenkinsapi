@@ -41,6 +41,7 @@ class TestResultSet(unittest.TestCase):
                         'timestamp': None}]}
 
     @mock.patch.object(ResultSet, '_poll')
+    # pylint: disable=W0221
     def setUp(self, _poll):
         _poll.return_value = self.DATA
 

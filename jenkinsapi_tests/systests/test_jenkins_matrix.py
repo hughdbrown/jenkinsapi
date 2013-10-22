@@ -1,12 +1,8 @@
 '''
 System tests for `jenkinsapi.jenkins` module.
 '''
-import os
 import re
 import time
-import gzip
-import shutil
-import tempfile
 import unittest
 
 from jenkinsapi_tests.systests.base import BaseSystemTest

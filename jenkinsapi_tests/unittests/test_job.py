@@ -46,7 +46,7 @@ class TestJob(unittest.TestCase):
 
     URL_DATA = {'http://halob:8080/job/foo/%s' % config.JENKINS_API: JOB_DATA}
 
-    def fakeGetData(self, url, *args):
+    def fakeGetData(self, url, *_):
         try:
             return TestJob.URL_DATA[url]
         except KeyError:
