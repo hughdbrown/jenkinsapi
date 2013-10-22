@@ -1,14 +1,36 @@
 from setuptools import setup
 import os
+import re
+
+
+VERSION_REGEX = re.compile(r"""
+    ^__version__\s=\s
+    ['"](?P<version>.*?)['"]
+""", re.MULTILINE | re.VERBOSE)
+
+VERSION_FILE = os.path.join("jenkinsapi", "version.py")
+
+
+def get_version():
+    """Reads the version from the package"""
+    with open(VERSION_FILE) as handle:
+        lines = handle.read()
+        result = VERSION_REGEX.search(lines)
+        if result:
+            return result.groupdict()["version"]
+        else:
+            raise ValueError("Unable to determine __version__")
+
 
 PROJECT_ROOT, _ = os.path.split(__file__)
-REVISION = '1.0.0'
-#REVISION = '0.2.15'
+REVISION = get_version()
 PROJECT_NAME = 'JenkinsAPI'
 PROJECT_AUTHORS = "Salim Fadhley, Ramon van Alteren, Ruslan Lutsenko"
 PROJECT_EMAILS = 'salimfadhley@gmail.com, ramon@vanalteren.nl, ruslan.lutcenko@gmail.com'
 PROJECT_URL = "https://github.com/salimfadhley/jenkinsapi"
 SHORT_DESCRIPTION = 'A Python API for accessing resources on a Jenkins continuous-integration server.'
+
+
 
 try:
     DESCRIPTION = open(os.path.join(PROJECT_ROOT, "README.rst")).read()

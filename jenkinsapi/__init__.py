@@ -53,12 +53,15 @@ from jenkinsapi import (
 
     # Files
     api, artifact, build, config, constants, custom_exceptions, fingerprint,
-    jenkins, jenkinsbase, job, node, result_set, result, view
+    jenkins, jenkinsbase, job, node, result_set, result, view,
 )
+
+from jenkinsapi.version import __version__
 
 __all__ = [
     "command_line", "utils",
     "api", "artifact", "build", "config", "constants", "custom_exceptions", "fingerprint",
-    "jenkins", "jenkinsbase", "job", "node", "result_set", "result", "view"
+    "jenkins", "jenkinsbase", "job", "node", "result_set", "result", "view",
+    "__version__",
 ]
 __docformat__ = "epytext"
