@@ -35,37 +35,35 @@ class Requester(object):
         if username:
             assert password, 'Cannot set a username without a password!'
 
-        self.base_scheme = urlparse.urlsplit(baseurl).scheme if baseurl else None
-        self.username = username
-        self.password = password
+        self.base_scheme = baseurl and urlparse.urlsplit(baseurl).scheme
+        self.auth = (username, password) if (username and password) else None
         self.ssl_verify = ssl_verify
 
+    # FIXME This was created because the unit tests hit properties of the Requester
+    @property
+    def username(self):
+        return self.auth[0] if self.auth else None
+
+    # FIXME This was created because the unit tests hit properties of the Requester
+    @property
+    def password(self):
+        return self.auth[1] if self.auth else None
+
     def get_request_dict(self, params=None, data=None, files=None, headers=None):
-        requestKwargs = {}
-        if self.username:
-            requestKwargs['auth'] = (self.username, self.password)
+        # Perform assertions
+        for arg, name in ((params, "Params"), (headers, "Headers")):
+            msg = "{0} must be a dict, got '{1}'".format(name, arg)
+            assert (not arg) or isinstance(arg, dict), msg
 
-        if params:
-            assert isinstance(
-                params, dict), 'Params must be a dict, got %s' % repr(params)
-            requestKwargs['params'] = params
+        # Set up lists of key-value tuples for dictionary construction
+        filtered_args = [
+            (key, value)
+            for key, value in [('params', params), ('headers', headers), ('files', files), ('data', data)]
+            if value is not None
+        ]
+        unfiltered_args = [('auth', self.auth), ('verify', self.ssl_verify)]
 
-        if headers:
-            assert isinstance(
-                headers, dict), 'headers must be a dict, got %s' % repr(headers)
-            requestKwargs['headers'] = headers
-
-        requestKwargs['verify'] = self.ssl_verify
-
-        if not data is None:
-            # It may seem odd, but some Jenkins operations require posting
-            # an empty string.
-            requestKwargs['data'] = data
-
-        if files:
-            requestKwargs['files'] = files
-
-        return requestKwargs
+        return dict(filtered_args + unfiltered_args)
 
     def _update_url_scheme(self, url):
         """
