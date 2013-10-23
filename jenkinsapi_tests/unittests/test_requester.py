@@ -18,7 +18,7 @@ class TestQueue(unittest.TestCase):
         )
         self.assertTrue(isinstance(req_return, dict))
         self.assertTrue(req_return.get('auth'))
-        self.assertTrue(req_return['auth'] == ('foo', 'bar'))
+        self.assertEqual(req_return['auth'], ('foo', 'bar'))
 
     def test_get_request_dict_wrong_params(self):
         req = Requester('foo', 'bar')
@@ -29,7 +29,7 @@ class TestQueue(unittest.TestCase):
                 data=None,
                 headers=None
             )
-        self.assertTrue(na.exception.message == "Params must be a dict, got 'wrong'")
+        self.assertEqual(na.exception.message, "Params must be a dict, got 'wrong'")
 
     def test_get_request_dict_correct_params(self):
         req = Requester('foo', 'bar')
@@ -42,7 +42,7 @@ class TestQueue(unittest.TestCase):
 
         self.assertTrue(isinstance(req_return, dict))
         self.assertTrue(req_return.get('params'))
-        self.assertTrue(req_return['params'] == {'param': 'value'})
+        self.assertEqual(req_return['params'], {'param': 'value'})
 
     def test_get_request_dict_wrong_headers(self):
         req = Requester('foo', 'bar')
@@ -53,7 +53,7 @@ class TestQueue(unittest.TestCase):
                 data=None,
                 headers='wrong'
             )
-        self.assertTrue(na.exception.message == "headers must be a dict, got 'wrong'")
+        self.assertEqual(na.exception.message, "Headers must be a dict, got 'wrong'")
 
     def test_get_request_dict_correct_headers(self):
         req = Requester('foo', 'bar')
@@ -66,7 +66,7 @@ class TestQueue(unittest.TestCase):
 
         self.assertTrue(isinstance(req_return, dict))
         self.assertTrue(req_return.get('headers'))
-        self.assertTrue(req_return['headers'] == {'header': 'value'})
+        self.assertEqual(req_return['headers'], {'header': 'value'})
 
     def test_get_request_dict_data_passed(self):
         req = Requester('foo', 'bar')
@@ -80,7 +80,7 @@ class TestQueue(unittest.TestCase):
         self.assertTrue(isinstance(req_return, dict))
         print req_return.get('data')
         self.assertTrue(req_return.get('data'))
-        self.assertTrue(req_return['data'] == 'some data')
+        self.assertEqual(req_return['data'], 'some data')
 
     def test_get_request_dict_data_not_passed(self):
         req = Requester('foo', 'bar')
@@ -102,7 +102,7 @@ class TestQueue(unittest.TestCase):
             'http://dummy',
             params={'param': 'value'},
             headers=None)
-        self.assertTrue(response == 'SUCCESS')
+        self.assertEqual(response, 'SUCCESS')
 
     @mock.patch.object(requests, 'post')
     def test_get_url_post(self, _post):
@@ -112,7 +112,7 @@ class TestQueue(unittest.TestCase):
             'http://dummy',
             params={'param': 'value'},
             headers=None)
-        self.assertTrue(response == 'SUCCESS')
+        self.assertEqual(response, 'SUCCESS')
 
     @mock.patch.object(requests, 'post')
     def test_post_xml_and_confirm_status_empty_xml(self, _post):
@@ -125,7 +125,8 @@ class TestQueue(unittest.TestCase):
                 data=None
             )
 
-        self.assertTrue(ae.exception.message == "Unexpected type of parameter 'data': <type 'NoneType'>. Expected (str, dict)")
+        self.assertEqual(ae.exception.message,
+                         "Unexpected type of parameter 'data': <type 'NoneType'>. Expected (str, dict)")
 
     @mock.patch.object(requests, 'post')
     def test_post_xml_and_confirm_status_some_xml(self, _post):
@@ -151,7 +152,8 @@ class TestQueue(unittest.TestCase):
                 data=None
             )
 
-        self.assertTrue(ae.exception.message == "Unexpected type of parameter 'data': <type 'NoneType'>. Expected (str, dict)")
+        self.assertEqual(ae.exception.message,
+                         "Unexpected type of parameter 'data': <type 'NoneType'>. Expected (str, dict)")
 
     @mock.patch.object(requests, 'post')
     def test_post_and_confirm_status_some_data(self, _post):
@@ -181,7 +183,8 @@ class TestQueue(unittest.TestCase):
             )
 
         print ae.exception.message
-        self.assertTrue(ae.exception.message == "Operation failed. url=None, data=some data, headers={'Content-Type': 'application/x-www-form-urlencoded'}, status=500, text=")
+        self.assertEqual(ae.exception.message,
+                         "Operation failed. url=None, data=some data, headers={'Content-Type': 'application/x-www-form-urlencoded'}, status=500, text=")
 
     @mock.patch.object(requests, 'get')
     def test_get_and_confirm_status(self, _get):
@@ -209,7 +212,9 @@ class TestQueue(unittest.TestCase):
             )
 
         print ae.exception.message
-        self.assertTrue(ae.exception.message == "Operation failed. url=None, headers=None, status=500, text=")
+        self.assertEqual(ae.exception.message,
+                         "Operation failed. url=None, headers=None, status=500, text=")
+
 
 if __name__ == "__main__":
     unittest.main()
