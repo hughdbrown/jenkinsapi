@@ -75,6 +75,7 @@ class test_build(unittest.TestCase):
     #     expected = ['SingleJob','MultipleJobs']
     #     self.assertEquals(self.b.get_downstream_job_names(), expected)
 
+
 def main():
     unittest.main(verbosity=2)
 

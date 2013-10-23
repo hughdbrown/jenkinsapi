@@ -9,6 +9,7 @@ from jenkinsapi_tests.test_utils.random_strings import random_string
 from jenkinsapi_tests.systests.job_configs import JOB_WITH_FILE
 from jenkinsapi_tests.systests.job_configs import JOB_WITH_PARAMETERS
 
+
 class TestParameterizedBuilds(BaseSystemTest):
 
     def test_invoke_job_with_file(self):
