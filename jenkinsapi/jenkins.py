@@ -32,8 +32,10 @@ class Jenkins(JenkinsBase):
     def __init__(self, baseurl, username=None, password=None, requester=None, **kwargs):
         """
         :param baseurl: baseurl for jenkins instance including port, str
-        :param username: username for jenkins auth, str
-        :param password: password for jenkins auth, str
+        :param username: optional username for jenkins auth, str
+        :param password: optional password for jenkins auth, str
+        :param requester: optional requester object, Requester
+        :param request_args: optional extra args to pass through to Requester, dict
         :return: a Jenkins obj
         """
         self.username = username
