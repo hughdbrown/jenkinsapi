@@ -86,18 +86,17 @@ class Job(JenkinsBase, MutableJenkinsThing):
 
         Jenkins API loads the first 100 builds and thus may not contain all builds
         information. This method checks if all builds are loaded in the data object
-        and updates it with the missing builds if needed.'''
-        if not data.get("builds"):
-            return data
-        # do not call _buildid_for_type here: it would poll and do an infinite loop
-        oldest_loaded_build_number = data["builds"][-1]["number"]
-        first_build_number = data["firstBuild"]["number"]
-        all_builds_loaded = (oldest_loaded_build_number == first_build_number)
-        if all_builds_loaded:
-            return data
-        api_url = self.python_api_url(self.baseurl)
-        response = self.get_data(api_url, params={'tree': 'allBuilds[number,url]'})
-        data['builds'] = response['allBuilds']
+        and updates it with the missing builds if needed.
+        '''
+        if data.get("builds"):
+            # do not call _buildid_for_type here: it would poll and do an infinite loop
+            oldest_loaded_build_number = data["builds"][-1]["number"]
+            first_build_number = data["firstBuild"]["number"]
+            all_builds_loaded = (oldest_loaded_build_number == first_build_number)
+            if not all_builds_loaded:
+                api_url = self.python_api_url(self.baseurl)
+                response = self.get_data(api_url, params={'tree': 'allBuilds[number,url]'})
+                data['builds'] = response['allBuilds']
         return data
 
     def _get_config_element_tree(self):
